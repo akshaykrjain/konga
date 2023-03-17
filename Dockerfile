@@ -1,21 +1,30 @@
-FROM node:12.16-alpine
+FROM node:8.12.0-slim
 
 COPY . /app
 
 WORKDIR /app
 
-RUN apk upgrade --update \
-    && apk add bash git ca-certificates \
-    && npm install -g bower \
-    && npm --unsafe-perm --production install \
-    && apk del git \
-    && rm -rf /var/cache/apk/* \
-        /app/.git \
-        /app/screenshots \
-        /app/test \
-    && adduser -H -S -g "Konga service owner" -D -u 1200 -s /sbin/nologin konga \
-    && mkdir /app/kongadata /app/.tmp \
-    && chown -R 1200:1200 /app/views /app/kongadata /app/.tmp
+RUN apt update 
+RUN apt install git -y --force-yes
+RUN apt install make -y --force-yes
+RUN apt install python -y --force-yes
+RUN apt install g++ -y --force-yes
+
+RUN apt install ca-certificates -y --force-yes
+RUN npm config set python python2
+
+#RUN apk upgrade --update \
+#    && apk add bash git ca-certificates \
+RUN  npm install -g bower
+RUN  npm --unsafe-perm --production install 
+RUN apt remove git -y
+RUN apt remove make -y
+RUN apt remove  g++ -y 
+
+RUN rm -rf /var/cache/apk/* \
+       /app/.git \
+    /app/screenshots \
+      /app/test
 
 EXPOSE 1337
 
